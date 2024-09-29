@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import ChildSidebar from './childsaidbar';
 
 const StudentList = () => {
-    const { teacherId, groupId } = useParams();
+    const { groupId } = useParams();
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,33 +14,67 @@ const StudentList = () => {
     const refreshRef = useRef(null);
 
     useEffect(() => {
-        const fetchStudentsAndGroupCoins = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:5001/students');
-                const filteredStudents = response.data.filter(student => student.group === groupId);
-                setStudents(filteredStudents);
+                const groupId = JSON.parse(localStorage.getItem('selectedGroupId')); // Foydalanuvchini olish
 
-                const teacherResponse = await axios.get(`http://localhost:5001/teachers/${teacherId}`);
-                const groupData = teacherResponse.data[groupId] && teacherResponse.data[groupId].length > 0 ? teacherResponse.data[groupId][0] : null;
+                console.log(groupId);
 
-                if (!groupData) {
-                    setError("Guruh ma'lumotlari topilmadi.");
+                if (!groupId) {
+                    setError('Foydalanuvchi tizimga kirmagan');
                     return;
                 }
 
-                setGroupCoins(parseInt(groupData.coins, 10) || 0);
-                setTeacherData(teacherResponse.data);
+                const studentsResponse = await axios.get('http://localhost:5001/students');
+                const filteredStudents = studentsResponse.data.filter(student => student.group == groupId);
+                setStudents(filteredStudents);
+                console.log(filteredStudents);
+
 
             } catch (error) {
-                console.error("O'quvchilar ma'lumotlarini olishda xato:", error);
-                setError("O'quvchilar ma'lumotlarini olishda xato");
+                console.error('Ma\'lumotlarni olishda xato:', error);
+                setError('Ma\'lumotlarni olishda xato');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchStudentsAndGroupCoins();
-    }, [groupId, teacherId]);
+        fetchData();
+    }, [groupId]);
+
+    const fetchStudentsAndGroupCoins = async (teacherId) => {
+        try {
+            const response = await axios.get('http://localhost:5001/students');
+            const filteredStudents = response.data.filter(student => student.group === groupId);
+            setStudents(filteredStudents);
+
+            if (!teacherId) {
+                throw new Error("O'qituvchi ma'lumotlari topilmadi.");
+            }
+
+            const teacherResponse = await axios.get(`http://localhost:5001/teachers/${teacherId}`);
+            const groupData = teacherResponse.data[groupId] && teacherResponse.data[groupId].length > 0
+                ? teacherResponse.data[groupId][0]
+                : null;
+
+            if (!groupData) {
+                throw new Error("Guruh ma'lumotlari topilmadi.");
+            }
+
+            setGroupCoins(parseInt(teacherData.groupId.coins) || 600);
+           
+        } catch (error) {
+            setError("O'quvchilar ma'lumotlarini olishda xato: " + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (teacherData) {
+            fetchStudentsAndGroupCoins(teacherData.id);
+        }
+    }, [teacherData]);
 
     const handleAmountChange = (id, value) => {
         setAmounts(prev => ({ ...prev, [id]: value }));
@@ -50,8 +84,8 @@ const StudentList = () => {
         const amount = parseInt(amounts[student.id], 10);
 
         if (!isNaN(amount) && amount > 0) {
-            try {
-                if (groupCoins >= amount) {
+            if (groupCoins >= amount) {
+                try {
                     const updatedStudent = {
                         ...student,
                         balance: student.balance + amount,
@@ -61,69 +95,58 @@ const StudentList = () => {
                     const updatedGroupCoins = groupCoins - amount;
 
                     await axios.put(`http://localhost:5001/students/${student.id}`, updatedStudent);
-
-                    await axios.put(`http://localhost:5001/teachers/${teacherId}`, {
+                    await axios.put(`http://localhost:5001/teachers/${teacherData.id}`, {
                         ...teacherData,
                         [groupId]: [{ ...teacherData[groupId][0], coins: updatedGroupCoins }]
+                        
                     });
 
-                    const updatedStudents = students.map(s => (s.id === student.id ? updatedStudent : s));
-                    setStudents(updatedStudents);
+                    setStudents(students.map(s => (s.id === student.id ? updatedStudent : s)));
                     setGroupCoins(updatedGroupCoins);
-
-                    // Hide the input field after successful update
-                    setShowInput(prev => ({ ...prev, [student.id]: false }));
-                    // Optionally, reset the amount input
                     setAmounts(prev => ({ ...prev, [student.id]: '' }));
-                } else {
-                    alert('Yetarli coins mavjud emas!');
+                } catch (error) {
+                    alert("Balansni yangilashda xato: " + error.message);
                 }
-            } catch (error) {
-                console.error("Balansni yangilashda xato:", error);
-                alert("Balansni yangilashda xato");
+            } else {
+                alert('Yetarli coins mavjud emas!');
             }
         } else {
             alert('Iltimos, to\'g\'ri son kiriting.');
         }
     };
-
+console.log(groupCoins);
 
     const [showInput, setShowInput] = useState({});
-    const [showDateButtons, setShowDateButtons] = useState({}); // yangi holat
+    const [showDateButtons, setShowDateButtons] = useState({});
 
     const toggleInput = (id) => {
         setShowInput(prev => ({ ...prev, [id]: !prev[id] }));
-        setShowDateButtons(prev => ({ ...prev, [id]: false })); // tugmachalarni yopish
+        setShowDateButtons(prev => ({ ...prev, [id]: false }));
     };
 
     const handleRefresh = () => {
         setLoading(true);
-        fetchStudentsAndGroupCoins();
+        fetchStudentsAndGroupCoins(teacherData?.id);
     };
 
     const handleDateChange = async (student, isUpdating) => {
-        // Check if the payment is sufficient before allowing the update
         if (student.tolov < 90833) {
             alert('Tolov miqdori 90833 dan kam. O\'zgartirish mumkin emas!');
-            return; // Stop the function if payment is insufficient
+            return;
         }
 
         const updatedStudent = {
             ...student,
-            last: isUpdating ? new Date().toLocaleDateString() : student.last, // Set current date if updating
-            tolov: student.tolov - 90833 // Corrected line to deduct 90833 from `tolov`
+            last: isUpdating ? new Date().toLocaleDateString() : student.last,
+            tolov: student.tolov - 90833
         };
 
         try {
             await axios.put(`http://localhost:5001/students/${student.id}`, updatedStudent);
-            const updatedStudents = students.map(s => (s.id === student.id ? updatedStudent : s));
-            setStudents(updatedStudents);
-
-            // Hide the date buttons after updating
+            setStudents(students.map(s => (s.id === student.id ? updatedStudent : s)));
             setShowDateButtons(prev => ({ ...prev, [student.id]: false }));
         } catch (error) {
-            console.error("Lastni yangilashda xato:", error);
-            alert("Lastni yangilashda xato");
+            alert("Lastni yangilashda xato: " + error.message);
         }
     };
 
@@ -138,6 +161,7 @@ const StudentList = () => {
     if (students.length === 0) {
         return <p className="text-center mt-12">Guruhda o'quvchilar mavjud emas.</p>;
     }
+
 
     return (
         <div className='flex'>
@@ -160,7 +184,7 @@ const StudentList = () => {
                                 <th className="py-4 px-6 text-left">Coins</th>
                                 <th className="py-4 px-6 text-left">Last</th>
                                 <th className="py-4 px-6 text-left">Data</th>
-                                <th className="py-4 px-6 w-full text-right  flex items-center gap-3">Coin chegarasi <p className='text-orange-500 text-right'>{groupCoins}</p></th>
+                                <th className="py-4 px-6 w-full text-right  flex items-center gap-3">Coin chegarasi <p className='text-orange-500 text-right'>600</p></th>
                             </tr>
                         </thead>
                         <tbody className="text-gray-800 text-base font-medium">

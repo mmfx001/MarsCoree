@@ -34,7 +34,7 @@ const Header = ({ setLoggedInUser }) => {
     }, []);
 
     return (
-        <nav className="bg-white py-4 px-24 w-full z-20  flex fixed justify-between  items-center shadow-lg a max-sm:flex-col max-sm:gap-5">
+        <nav className="bg-white py-4 px-24 w-full z-20 flex fixed justify-between  items-center shadow-lg a max-sm:flex-col max-sm:gap-5">
             {/* Logo */}
             <div className="flex items-center">
                 <Link to="/teacher">
