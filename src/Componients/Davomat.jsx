@@ -10,7 +10,7 @@ const Davomat = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5001/students');
+        const response = await fetch('https://shoopjson-2.onrender.com/api/students');
         const data = await response.json();
 
         const groupData = {

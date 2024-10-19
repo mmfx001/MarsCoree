@@ -24,7 +24,7 @@ const Login = () => {
 
         try {
             // Fetch users data from the server
-            const { data: users } = await axios.get('http://localhost:5001/teachers');
+            const { data: users } = await axios.get('https://shoopjson-2.onrender.com/api/teachers');
 
             // Find matching user
             const user = users.find(v => v.teacher === trimmedName && v.password === trimmedPassword);
@@ -76,7 +76,7 @@ const Login = () => {
                                 value={teacher}
                                 onChange={(e) => setName(e.target.value)}
                                 className="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-150"
-                                placeholder="Ismingizni kiriting"
+                                placeholder="Ismingizni kiriting    (Dilbek)"
                                 required
                             />
                         </div>
@@ -85,11 +85,11 @@ const Login = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Parol</label>
                             <input
-                                type="password"
+                                type="password "
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-150"
-                                placeholder="Parolingizni kiriting"
+                                placeholder="Parolingizni kiriting   ( 1 )"
                                 required
                             />
                         </div>

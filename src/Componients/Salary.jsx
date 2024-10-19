@@ -7,7 +7,7 @@ const Salary = () => {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [visibleTables, setVisibleTables] = useState({}); // State to manage visibility of tables
+    const [visibleTables, setVisibleTables] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -18,8 +18,10 @@ const Salary = () => {
                     return;
                 }
 
-                const teacherResponse = await axios.get(`http://localhost:5001/teachers/${loggedInUser.id}`);
-                const studentsResponse = await axios.get(`http://localhost:5001/students`);
+                const [teacherResponse, studentsResponse] = await Promise.all([
+                    axios.get(`https://shoopjson-2.onrender.com/api/teachers/${loggedInUser.id}`),
+                    axios.get('https://shoopjson-2.onrender.com/api/students'),
+                ]);
 
                 setTeacher(teacherResponse.data);
                 setStudents(studentsResponse.data);
@@ -34,33 +36,21 @@ const Salary = () => {
         fetchData();
     }, []);
 
-    if (loading) {
-        return <p className="text-center mt-12">Yuklanmoqda...</p>;
-    }
+    if (loading) return <p className="text-center mt-12">Yuklanmoqda...</p>;
+    if (error) return <p className="text-center mt-12 text-red-500">{error}</p>;
+    if (!teacher) return <p className="text-center mt-12 text-red-500">O'qituvchi topilmadi</p>;
 
-    if (error) {
-        return <p className="text-center mt-12 text-red-500">{error}</p>;
-    }
-
-    if (!teacher) {
-        return <p className="text-center mt-12 text-red-500">O'qituvchi topilmadi</p>;
-    }
-
-    const groups = Object.keys(teacher).reduce((acc, key) => {
-        if (key !== 'id' && key !== 'teacher' && key !== 'password' && key !== 'students' && key !== 'groupcount' && key !== 'level') {
-            acc[key] = teacher[key];
+    const groups = Object.entries(teacher).reduce((acc, [key, value]) => {
+        if (!['id', 'teacher', 'password', 'students', 'groupcount', 'level'].includes(key)) {
+            acc[key] = value;
         }
         return acc;
     }, {});
 
     const toggleTableVisibility = (groupId) => {
-        setVisibleTables((prev) => ({
-            ...prev,
-            [groupId]: !prev[groupId],
-        }));
+        setVisibleTables((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
     };
 
-    // Calculate total payment for all groups
     const totalPayment = Object.keys(groups).reduce((sum, groupId) => {
         const groupStudents = students.filter(student => student.group === groupId);
         const groupTotal = groupStudents.reduce((total, student) => {
@@ -75,9 +65,7 @@ const Salary = () => {
             <Sidebar />
             <div className="flex w-full p-6 bg-gray-100 gap-6 ml-24 mt-14">
                 <div className='px-6 py-6 bg-gray-50 rounded-2xl shadow-xl w-[50%] h-56'>
-                    <div className='flex items-center gap-1 mb-2'>
-                        <h1 className="text-2xl font-semibold">{teacher.teacher}</h1>
-                    </div>
+                    <h1 className="text-2xl font-semibold">{teacher.teacher}</h1>
                     <div className='flex flex-wrap w-full gap-3'>
                         <div className='w-48 border-2 p-2 rounded-md'>
                             <p className='text-xs'>O'quvchilar soni</p>
@@ -96,10 +84,10 @@ const Salary = () => {
 
                 <div className='w-full'>
                     <div className='p-6 bg-gray-50 rounded-2xl shadow-xl w-full'>
-                      <div className='w-full flex items-center justify-between p-4 mt-[-30px]'>
-                      <h1 className="text-2xl font-semibold ">Groups</h1>
-                      <p className='text-emerald-600 text-3xl font-semibold flex items-center'>{totalPayment.toLocaleString()} <p className='text-xs ml-2 text-gray-500'>so'm</p></p>
-                      </div>
+                        <div className='w-full flex items-center justify-between p-4 mt-[-30px]'>
+                            <h1 className="text-2xl font-semibold ">Groups</h1>
+                            <p className='text-emerald-600 text-3xl font-semibold flex items-center'>{totalPayment.toLocaleString()} <span className='text-xs ml-2 text-gray-500'>so'm</span></p>
+                        </div>
                         <hr className='mb-6 mt-5' />
                         {Object.keys(groups).length > 0 ? (
                             <div className="flex flex-col md:grid-cols-2 gap-2">
@@ -113,14 +101,14 @@ const Salary = () => {
                                     return (
                                         <div key={groupId} className="bg-white flex flex-col p-4 w-full justify-between">
                                             <div className="flex items-center justify-between w-full">
-                                                <h2 className="text-xl text-black text-center">{groupId}</h2>
+                                                <h2 className="text-xl text-black text-center">{teacher.grupNomber}</h2>
                                                 <p className='text-lg font-semibold flex items-center gap-1'>{groupTotal.toLocaleString()} <span className='text-xs text-gray-500'>so'm</span>
                                                     <button className='text-3xl ml-5 text-center text-gray-500' onClick={() => toggleTableVisibility(groupId)}>
                                                         {visibleTables[groupId] ? '▼' : '›'}
                                                     </button>
                                                 </p>
                                             </div>
-                                            {visibleTables[groupId] && ( // Render the table only if visible
+                                            {visibleTables[groupId] && ( 
                                                 <div>
                                                     <table className="w-full overflow-hidden">
                                                         <thead>

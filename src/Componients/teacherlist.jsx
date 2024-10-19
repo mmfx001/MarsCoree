@@ -9,7 +9,7 @@ const TeachersList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:5001/teachers')
+    axios.get('https://shoopjson-2.onrender.com/api/teachers')
       .then(response => {
         setTeachers(response.data);
         setLoading(false);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Sidebar from './saidbar';
@@ -7,15 +7,16 @@ const TeacherCard = () => {
     const [teacher, setTeacher] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [ratingData, setRatingData] = useState([]); // State to store rating data
+    const [ratingData, setRatingData] = useState([]);
 
     useEffect(() => {
         const fetchRatingData = async () => {
             try {
-                const response = await axios.get("http://localhost:5001/rating");
-                setRatingData(response.data || []); // Store fetched rating data
+                const response = await axios.get("https://shoopjson-2.onrender.com/api/rating");
+                setRatingData(response.data || []);
             } catch (error) {
                 console.error("Error fetching rating data", error);
+                setError('Reyting ma\'lumotlarini olishda xato.');
             }
         };
         fetchRatingData();
@@ -24,17 +25,14 @@ const TeacherCard = () => {
     useEffect(() => {
         const fetchTeacher = async () => {
             try {
-                // Get logged-in user data from localStorage
                 const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-                console.log(loggedInUser);
 
                 if (!loggedInUser) {
                     setError('Foydalanuvchi tizimga kirmagan');
                     return;
                 }
 
-                // Fetch teacher data
-                const response = await axios.get(`http://localhost:5001/teachers/${loggedInUser.id}`);
+                const response = await axios.get(`https://shoopjson-2.onrender.com/api/teachers/${loggedInUser.id}`);
                 setTeacher(response.data);
             } catch (error) {
                 console.error('O\'qituvchi ma\'lumotlarini olishda xato:', error);
@@ -48,7 +46,9 @@ const TeacherCard = () => {
     }, []);
 
     // Sorting rating data by the 'Umumiy' score
-    const sortedRatingData = [...ratingData].sort((a, b) => b.Umumiy - a.Umumiy);
+    const sortedRatingData = useMemo(() => {
+        return [...ratingData].sort((a, b) => b.Umumiy - a.Umumiy);
+    }, [ratingData]);
 
     if (loading) {
         return <p className="text-center mt-12">Yuklanmoqda...</p>;
@@ -62,25 +62,24 @@ const TeacherCard = () => {
         return <p className="text-center mt-12 text-red-500">O'qituvchi topilmadi</p>;
     }
 
-    // Accessing groups correctly based on your provided JSON structure
     const groups = Object.keys(teacher).reduce((acc, key) => {
-        if (key !== 'id' && key !== 'teacher' && key !== 'password' && key !== 'students' && key !== 'groupcount' && key !== 'level') {
-            acc[key] = teacher[key]; // Add only group-related entries
+        if (!['id', 'teacher', 'password', 'students', 'groupcount', 'level'].includes(key)) {
+            acc[key] = teacher[key];
         }
         return acc;
     }, {});
 
-    const handleClick = (groupId) => {
-        // Save the selected group ID to localStorage
-        localStorage.setItem('selectedGroupId', groupId);
-        console.log('Selected Group ID:', groupId);
+    const handleClick = (group) => {
+        // localStorage ga groupNumber ni saqlaymiz
+        localStorage.setItem('selectedGroupId', group.groupNumber);
+        console.log('Selected Group ID:', group.groupNumber);
     };
 
     return (
         <div className="flex">
             <Sidebar />
             <div className='flex flex-col w-full ml-24 mt-14 '>
-                <div className="flex-1 p-6  w-full">
+                <div className="flex-1 p-6 w-full">
                     <div className='p-6 bg-gray-50 w-full rounded-2xl shadow-xl'>
                         <h1 className="text-3xl font-bold mb-4">⭕ Guruhlar</h1>
                         <hr className='mb-6 mt-5' />
@@ -88,11 +87,11 @@ const TeacherCard = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {Object.keys(groups).map((groupId) => (
                                     <div key={groupId} className="bg-white shadow-lg rounded-lg p-4 max-w-xs mb-7">
-                                        {Array.isArray(groups[groupId]) ? ( // Ensure groups[groupId] is an array
+                                        {Array.isArray(groups[groupId]) ? (
                                             groups[groupId].map((group, index) => (
                                                 <div key={index} className="mb-4">
                                                     <div className='w-full p-7 bg-yellow-300 flex flex-col items-center justify-center rounded-lg'>
-                                                        <h2 className="text-4xl text-white font-bold mb-2 text-center">{groupId}</h2>
+                                                        <h2 className="text-4xl text-white font-bold mb-2 text-center">{group.groupNumber}</h2>
                                                         <h1 className="text-2xl text-white font-bold text-center">{teacher.teacher}</h1>
                                                     </div>
                                                     <div className='flex flex-col gap-4 mt-3'>
@@ -102,8 +101,8 @@ const TeacherCard = () => {
                                                         <p className='w-full flex items-center justify-between text-xl font-semibold'>
                                                             <span className='text-base'>Vaqt</span> {group.time}
                                                         </p>
-                                                        <button onClick={() => handleClick(groupId)}>
-                                                            <Link to={`/coins`} className='px-6 w-32 rounded-md py-1 bg-green-600 text-white text-lg font-semibold text-center inline-block'>
+                                                        <button onClick={() => handleClick(group)}>
+                                                            <Link to="/coins" className='px-6 w-32 rounded-md py-1 bg-green-600 text-white text-lg font-semibold text-center inline-block'>
                                                                 Tekshirish
                                                             </Link>
                                                         </button>
@@ -141,7 +140,7 @@ const TeacherCard = () => {
                             <tbody className="text-gray-600 text-sm">
                                 {sortedRatingData.length > 0 ? (
                                     sortedRatingData.map((rating, index) => (
-                                        <tr key={rating.id} className="border-b border-gray-200 hover:bg-orange-500 transition-colors duration-300">
+                                        <tr key={rating.id || index} className="border-b border-gray-200 hover:bg-orange-500 transition-colors duration-300">
                                             <td className="py-3 px-6 text-left">
                                                 <span className="font-medium">{index + 1}</span>
                                             </td>
@@ -169,7 +168,7 @@ const TeacherCard = () => {
                                                 </span>
                                             </td>
                                             <td className="py-3 px-6 text-center">
-                                                <span className="bg-green-100 text-green-600 py-1 px-3 rounded-full text-xs">
+                                                <span className="bg-blue-100 text-blue-600 py-1 px-3 rounded-full text-xs">
                                                     {rating.Umumiy}
                                                 </span>
                                             </td>
@@ -177,12 +176,13 @@ const TeacherCard = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="py-4 text-center">
-                                            Ma'lumotlar topilmadi
+                                        <td colSpan="7" className="py-3 px-6 text-center text-red-500">
+                                            Reyting ma'lumotlari topilmadi
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
+
                         </table>
                     </div>
                 </div>

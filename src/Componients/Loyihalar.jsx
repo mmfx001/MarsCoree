@@ -11,7 +11,7 @@ const ProjectsPage = () => {
     const projectsPerPage = 7;
 
     useEffect(() => {
-        fetch('http://localhost:5001/projects')
+        fetch('https://shoopjson-2.onrender.com/api/projects')
             .then((response) => response.json())
             .then((data) => {
                 setProjects(data);
@@ -25,7 +25,7 @@ const ProjectsPage = () => {
 
     useEffect(() => {
         if (selectedProject) {
-            fetch(`http://localhost:5001/students?group_id=${selectedProject.group_id}`)
+            fetch(`https://shoopjson-2.onrender.com/api/students?group_id=${selectedProject.group_id}`)
                 .then((response) => response.json())
                 .then((data) => {
                     setStudents(data);

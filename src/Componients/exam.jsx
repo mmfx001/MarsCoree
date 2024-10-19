@@ -20,7 +20,7 @@ const Exam = () => {
                     return;
                 }
 
-                const studentsResponse = await axios.get('http://localhost:5001/students');
+                const studentsResponse = await axios.get('https://shoopjson-2.onrender.com/api/students');
                 const filteredStudents = studentsResponse.data.filter(student => student.group === storedGroupId);
                 setStudents(filteredStudents);
             } catch (error) {
@@ -81,7 +81,7 @@ const Exam = () => {
 
             // Update or add exam for each student in the selected group
             await Promise.all(students.map(async (student) => {
-                await axios.put(`http://localhost:5001/students/${student.id}`, {
+                await axios.put(`https://shoopjson-2.onrender.com/api/students/${student.id}`, {
                     ...student,
                     exams: [...(student.exams || []), newExam],
                 });
