@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import ChildSidebar from './childsaidbar';
+import { FaSync, FaPlus, FaCheck } from 'react-icons/fa'; // Ikonkalardan foydalanish uchun
 
 const StudentList = () => {
     const { groupId } = useParams();
@@ -45,6 +46,7 @@ const StudentList = () => {
 
             const response = await axios.get(`https://shoopjson-2.onrender.com/api/teachers/${loggedInUser.id}`);
             setTeacherData(response.data);
+            setGroupCoins(response.data.groups[0].coins); // O'qituvchining guruh coinlarini oling
         } catch (error) {
             console.error('O\'qituvchi ma\'lumotlarini olishda xato:', error);
             setError('O\'qituvchi ma\'lumotlarini olishda xato');
@@ -72,7 +74,7 @@ const StudentList = () => {
                         balance: student.balance + amount,
                         coins: student.coins + amount,
                     };
-                    const updatedGroupCoins = groupCoins - amount;
+                    const updatedGroupCoins = groupCoins - amount; // Guruh coinlarini yangilash
 
                     await axios.put(`https://shoopjson-2.onrender.com/api/students/${student.id}`, updatedStudent);
                     await axios.put(`https://shoopjson-2.onrender.com/api/teachers/${teacherData.id}`, {
@@ -81,7 +83,7 @@ const StudentList = () => {
                     });
 
                     setStudents(students.map(s => (s.id === student.id ? updatedStudent : s)));
-                    setGroupCoins(updatedGroupCoins);
+                    setGroupCoins(updatedGroupCoins); // Guruh coinlarini yangilang
                     setAmounts(prev => ({ ...prev, [student.id]: '' }));
                 } catch (error) {
                     alert("Balansni yangilashda xato: " + error.message);
@@ -146,7 +148,9 @@ const StudentList = () => {
                     <div className='flex items-center w-full justify-between'>
                         <h1 className='text-4xl font-semibold mb-12'>⭕{groupId}</h1>
                         <div className='flex flex-col items-center'>
-                            <button onClick={handleRefresh} ref={refreshRef} className='py-1 px-4 mb-12 bg-emerald-400 text-white font-semibold rounded-2xl'> 🔃Yangilash</button>
+                            <button onClick={handleRefresh} ref={refreshRef} className='py-1 px-4 mb-12 bg-emerald-400 text-white font-semibold rounded-2xl flex items-center gap-2'>
+                                <FaSync /> Yangilash
+                            </button>
                         </div>
                     </div>
                     <table className="w-full overflow-hidden">
@@ -156,8 +160,10 @@ const StudentList = () => {
                                 <th className="py-4 px-6 text-left">League</th>
                                 <th className="py-4 px-6 text-left">Coins</th>
                                 <th className="py-4 px-6 text-left">Last</th>
-                                <th className="py-4 px-6 w-full text-right flex items-center gap-3">Coin chegarasi <p className='text-orange-500 text-right text-xs'>(Gacha: {groupCoins})</p></th>
-                                <th className="py-4 px-6 text-right">Davomat</th> {/* Yangilangan ustun */}
+                                <th className="py-4 px-6 w-full text-right flex items-center gap-3">
+                                    Coin chegarasi <p className='text-orange-500 text-right text-xs'>(Gacha: {groupCoins})</p>
+                                </th>
+                                <th className="py-4 px-6 text-right">Davomat</th>
                             </tr>
                         </thead>
                         <tbody className="text-gray-600 text-sm font-light">
@@ -170,7 +176,9 @@ const StudentList = () => {
                                     <td className="py-3 px-6 text-left">{student.coins}</td>
                                     <td className="py-3 px-6 text-left">{student.last}</td>
                                     <td className="py-3 px-6 text-right flex items-center gap-3">
-                                        <button onClick={() => toggleInput(student.id)} className="bg-blue-500 text-white py-1 px-4 rounded">Add Coin</button>
+                                        <button onClick={() => toggleInput(student.id)} className="bg-blue-500 text-white py-1 px-4 rounded flex items-center gap-2">
+                                            <FaPlus /> Add Coin
+                                        </button>
                                         {showInput[student.id] && (
                                             <div className='flex items-center'>
                                                 <input
@@ -178,14 +186,18 @@ const StudentList = () => {
                                                     value={amounts[student.id] || ''}
                                                     onChange={(e) => handleAmountChange(student.id, e.target.value)}
                                                     placeholder="Miqdor..."
-                                                    className="border-2 border-gray-300 rounded-lg px-2"
+                                                    className='border rounded p-1 w-20'
                                                 />
-                                                <button onClick={() => handleSubmit(student)} className="bg-green-500 text-white py-1 px-4 rounded">Jo'natish</button>
+                                                <button onClick={() => handleSubmit(student)} className='bg-emerald-400 text-white py-1 px-3 rounded ml-2'>
+                                                    <FaCheck />
+                                                </button>
                                             </div>
                                         )}
                                     </td>
-                                    <td className="py-3 px-6 text-right"> {/* Davomat tugmasi */}
-                                        <button onClick={() => handleAttendanceChange(student)} className="bg-orange-500 text-white py-1 px-4 rounded">Davomat</button>
+                                    <td className="py-3 px-6 text-right">
+                                        <button onClick={() => handleAttendanceChange(student)} className="bg-amber-400 text-white py-1 px-3 rounded">
+                                            Davomat
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

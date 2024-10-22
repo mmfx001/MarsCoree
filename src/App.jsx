@@ -13,7 +13,6 @@ import ProjectsPage from './Componients/Loyihalar';
 const App = () => {
   return (
     <>
-      <Header /> {/* Place Header here to show on all routes */}
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/teacher" element={<TeacherCard />} />
