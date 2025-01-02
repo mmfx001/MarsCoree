@@ -112,7 +112,7 @@ const Dashboard = () => {
     );
 
     return (
-        <div className="w-full flex">
+        <div className="w-full flex bg-white">
          <Sidebar/>   
         <div className="p-6 w-full h-screen flex gap-6">
             <div className=" flex flex-col items-center w-[60%]">
@@ -131,7 +131,7 @@ const Dashboard = () => {
                         placeholder="Talabani qidirish..."
                         value={searchTerm}
                         onChange={handleSearch}
-                        className="flex-1 p-2 outline-none rounded"
+                        className="flex-1 p-2 outline-none rounded bg-white"
                     />
                 </div>
 
@@ -189,7 +189,7 @@ const Dashboard = () => {
                             onChange={(e) =>
                                 setPayment((prev) => ({ ...prev, price: e.target.value }))
                             }
-                            className="block w-full p-2 border border-gray-300 rounded mb-4"
+                            className="block w-full p-2 border border-gray-300 rounded mb-4 bg-white"
                         />
                         <div className="flex gap-4">
                             <button
