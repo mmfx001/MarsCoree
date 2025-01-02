@@ -28,7 +28,7 @@ const Login = () => {
         try {
             // Fetch users data from the server (teachers and admin)
             const { data: teachers } = await axios.get('https://shoopjson-2.onrender.com/api/teachers');
-            const { data: admins } = await axios.get('http://localhost:5001/api/admin'); // Assuming admins API
+            const { data: admins } = await axios.get('https://shoopjson-2.onrender.com/api/admin'); // Assuming admins API
 
             // Find matching user in teachers and admins
             let user = teachers.find(v => v.raqam === trimmedRaqam && v.password === trimmedPassword);
