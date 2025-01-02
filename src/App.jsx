@@ -7,25 +7,42 @@ import Salary from './Componients/Salary';
 import Exam from './Componients/exam';
 import Davomat from './Componients/Davomat';
 import ProjectsPage from './Componients/Loyihalar';
-
-
+import Sidebar from './Admin/Sidebar';
+import Dashboard from './Admin/Dashboard';
+import Group from './Admin/Groups';
+import Mentorlar from './Admin/Mentorlar';
+import StudentTable from './Admin/Students';
+import Magazin from './Admin/Magazin';
+import StudentCreate from './Admin/StudentCreate';
 
 const App = () => {
+  // Get the role from localStorage
+  const role = localStorage.getItem('role');
+  console.log(role);
+  
+
   return (
-    <>
-      <Header /> {/* Place Header here to show on all routes */}
+    <div className='flex w-full'>
+      {role == 'admin' ? <Sidebar /> : role == 'teacher' ? <Header /> : null}
+
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        
         <Route path="/teacher" element={<TeacherCard />} />
         <Route path="/salary" element={<Salary />} />
+        <Route path="/shop" element={<Magazin />} />
+        <Route path="/students" element={<StudentCreate />} />
+        <Route path="/coins" element={<StudentTable />} />
+        <Route path="/groups" element={<Group />} />
+        <Route path="/mentors" element={<Mentorlar />} />
         <Route path="/talim" element={<ProjectsPage />} />
         <Route path="/exam" element={<Exam />} />
         <Route path="/davomat" element={<Davomat />} />
         <Route path="/coins" element={<StudentList />} /> {/* Separate route for student list */}
       </Routes>
-    </>
+    </div>
   );
 };
-
 
 export default App;
