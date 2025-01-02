@@ -68,7 +68,7 @@ const ProjectsPage = () => {
     }
 
     return (
-        <div className="flex h-screen">
+        <div className="flex w-full h-screen">
             <ChildSidebar />
             <div className="w-1/5 ml-20 pt-20 bg-white p-6 border-r">
                 <div className="flex items-center text-orange-500 text-xl font-semibold mb-6">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Sidebar from './Sidebar';
 
 const Mentorlar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -39,7 +40,8 @@ const Mentorlar = () => {
   };
 
   return (
-    <>
+    <div className="w-full flex">
+         <Sidebar/>   
       <div className='w-full p-6'>
         <div className="flex items-center justify-between w-full p-4 ">
           <p className="text-black text-lg font-semibold mt-2 tracking-wide uppercase">
@@ -136,7 +138,7 @@ const Mentorlar = () => {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 };
 

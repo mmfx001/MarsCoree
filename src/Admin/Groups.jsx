@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Sidebar from "./Sidebar";
 
 const Group = () => {
   const [teachers, setTeachers] = useState([]);
@@ -52,6 +53,8 @@ const Group = () => {
   }, [selectedRoom, selectedDay, teachers]);
 
   return (
+    <div className="w-full flex">
+         <Sidebar/>   
     <div className="p-6 w-full bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto">
         {/* Havta kunini tanlash */}
@@ -143,6 +146,7 @@ const Group = () => {
           <p className="text-gray-500 text-center">Hech qanday guruh topilmadi yoki to'liq malumot bermadingiz</p>
         )}
       </div>
+    </div>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import axios from "axios";
 import { FaSearch, FaMoneyBillWave } from "react-icons/fa"; // Import icons
 import FilialCards from "./FilialCard";
 import MonthlyPaymentsChart from "./Chart";
+import Sidebar from "./Sidebar";
 
 const Dashboard = () => {
     const [students, setStudents] = useState([]);
@@ -111,6 +112,8 @@ const Dashboard = () => {
     );
 
     return (
+        <div className="w-full flex">
+         <Sidebar/>   
         <div className="p-6 w-full h-screen flex gap-6">
             <div className=" flex flex-col items-center w-[60%]">
                 <MonthlyPaymentsChart/>
@@ -205,6 +208,7 @@ const Dashboard = () => {
                     </div>
                 )}
             </div>
+        </div>
         </div>
     );
 };

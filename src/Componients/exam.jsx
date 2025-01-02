@@ -103,7 +103,7 @@ const Exam = () => {
     if (error) return <div className="text-red-600 text-center">{error}</div>;
 
     return (
-        <div className="flex bg-gray-100 min-h-screen">
+        <div className="flex w-full bg-gray-100 min-h-screen">
             <ChildSidebar />
             <div className="flex-1 p-6 ml-24 mt-24">
                 <h1 className="text-3xl  font-bold text-center mb-6">Imtihon yaratish</h1>

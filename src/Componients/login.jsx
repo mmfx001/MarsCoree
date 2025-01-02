@@ -81,7 +81,7 @@ const Login = () => {
     };
 
     return (
-        <div className="bg-slate-800 w-full h-screen flex items-center justify-center p-4">
+        <div className="bg-gray-100 w-full h-screen flex items-center justify-center p-4">
             <div className="bg-white bg-opacity-90 rounded-3xl shadow-xl p-8 w-full max-w-4xl flex flex-col md:flex-row items-center gap-6">
                 
                 {/* Astronaut Image */}

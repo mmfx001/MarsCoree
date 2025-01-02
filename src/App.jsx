@@ -14,32 +14,34 @@ import Mentorlar from './Admin/Mentorlar';
 import StudentTable from './Admin/Students';
 import Magazin from './Admin/Magazin';
 import StudentCreate from './Admin/StudentCreate';
-
+import PrivateRoute from './PriwateRouter';
 const App = () => {
   // Get the role from localStorage
   const role = localStorage.getItem('role');
   console.log(role);
-  
 
   return (
     <div className='flex w-full'>
-      {role == 'admin' ? <Sidebar /> : role == 'teacher' ? <Header /> : null}
+      { role == 'teacher' ? <Header /> : null}
 
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
         
-        <Route path="/teacher" element={<TeacherCard />} />
-        <Route path="/salary" element={<Salary />} />
-        <Route path="/shop" element={<Magazin />} />
-        <Route path="/students" element={<StudentCreate />} />
-        <Route path="/coins" element={<StudentTable />} />
-        <Route path="/groups" element={<Group />} />
-        <Route path="/mentors" element={<Mentorlar />} />
-        <Route path="/talim" element={<ProjectsPage />} />
-        <Route path="/exam" element={<Exam />} />
-        <Route path="/davomat" element={<Davomat />} />
-        <Route path="/coins" element={<StudentList />} /> {/* Separate route for student list */}
+        {/* Wrap routes that need authentication in PrivateRoute */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/teacher" element={<TeacherCard />} />
+          <Route path="/salary" element={<Salary />} />
+          <Route path="/shop" element={<Magazin />} />
+          <Route path="/students" element={<StudentCreate />} />
+          <Route path="/coins" element={<StudentTable />} />
+          <Route path="/groups" element={<Group />} />
+          <Route path="/mentors" element={<Mentorlar />} />
+          <Route path="/talim" element={<ProjectsPage />} />
+          <Route path="/exam" element={<Exam />} />
+          <Route path="/davomat" element={<Davomat />} />
+          <Route path="/list" element={<StudentList />} />
+        </Route>
       </Routes>
     </div>
   );

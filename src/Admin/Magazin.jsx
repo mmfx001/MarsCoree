@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Sidebar from './Sidebar';
 
 const Magazin = () => {
     const [shopItems, setShopItems] = useState([]);
@@ -114,7 +115,9 @@ const Magazin = () => {
 
 
     return (
-        <div className="p-12 font-sans bg-teal-50 min-h-screen">
+        <div className="w-full flex">
+         <Sidebar/>   
+        <div className="p-12 w-full font-sans bg-teal-50 min-h-screen">
             <h1 className="text-center text-5xl font-extrabold text-gray-800 mb-12">Do'kon</h1>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div className="bg-white rounded-xl shadow-2xl p-8 w-full overflow-scroll h-screen">
@@ -268,6 +271,7 @@ const Magazin = () => {
                     ))}
                 </div>
             </div>
+        </div>
         </div>
     );
 };

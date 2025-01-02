@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Sidebar from './Sidebar';
 
 const StudentCreate = () => {
     const [students, setStudents] = useState([]);
@@ -80,7 +81,7 @@ const StudentCreate = () => {
     };
 
     const handleAddStudent = async () => {
- 
+
         const randomId = generateRandomId();
         const newStudent = {
             ...newStudentData,
@@ -117,73 +118,76 @@ const StudentCreate = () => {
     };
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">Student Management</h1>
-            
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Add New Student</h2>
-                <form onSubmit={(e) => { e.preventDefault(); handleAddStudent(); }}>
-                    <input
-                        type="text"
-                        value={newStudentData.name}
-                        onChange={(e) => setNewStudentData({ ...newStudentData, name: e.target.value })}
-                        className="w-full p-2 mb-3 border rounded-md"
-                        placeholder="Name"
-                    />
-                    <input
-                        type="text"
-                        value={newStudentData.login}
-                        onChange={(e) => setNewStudentData({ ...newStudentData, login: e.target.value })}
-                        className="w-full p-2 mb-3 border rounded-md"
-                        placeholder="Login"
-                    />
-                    <input
-                        type="text"
-                        value={newStudentData.league}
-                        onChange={(e) => setNewStudentData({ ...newStudentData, league: e.target.value })}
-                        className="w-full p-2 mb-3 border rounded-md"
-                        placeholder="League"
-                    />
-                    <select
-                        value={newStudentData.teacher}
-                        onChange={handleTeacherChange}
-                        className="w-full p-2 mb-3 border rounded-md"
-                    >
-                        <option value="">Select Teacher</option>
-                        {teachers.map((teacher) => (
-                            <option key={teacher.id} value={teacher.teacher}>
-                                {teacher.teacher}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        value={newStudentData.group}
-                        onChange={(e) => setNewStudentData({ ...newStudentData, group: e.target.value })}
-                        className="w-full p-2 mb-3 border rounded-md"
-                    >
-                        <option value="">Select Group</option>
-                        {availableGroups.map((group, index) => (
-                            <option key={index} value={group.groupNumber}>
-                                Group {group.groupNumber}
-                            </option>
-                        ))}
-                    </select>
-                    <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">Add Student</button>
-                </form>
-            </div>
+        <div className="w-full flex">
+            <Sidebar />
+            <div className="container mx-auto p-6">
+                <h1 className="text-2xl font-bold mb-4">Student Management</h1>
 
-            <h2 className="text-xl font-semibold mb-4">Students List</h2>
-            <div>
-                {students.map((student) => (
-                    <div key={student.id} className="border p-4 mb-4">
-                        <div className="font-semibold">{student.name}</div>
-                        <div>{student.league}</div>
-                        <div>{student.group}</div>
-                        <div>{student.teacher}</div>
-                        <button onClick={() => handleEdit(student)} className="px-4 py-2 bg-yellow-500 text-white rounded-md">Edit</button>
-                        <button onClick={() => handleDelete(student.id)} className="px-4 py-2 bg-red-500 text-white rounded-md ml-2">Delete</button>
-                    </div>
-                ))}
+                <div className="mb-6">
+                    <h2 className="text-xl font-semibold mb-4">Add New Student</h2>
+                    <form onSubmit={(e) => { e.preventDefault(); handleAddStudent(); }}>
+                        <input
+                            type="text"
+                            value={newStudentData.name}
+                            onChange={(e) => setNewStudentData({ ...newStudentData, name: e.target.value })}
+                            className="w-full p-2 mb-3 border rounded-md"
+                            placeholder="Name"
+                        />
+                        <input
+                            type="text"
+                            value={newStudentData.login}
+                            onChange={(e) => setNewStudentData({ ...newStudentData, login: e.target.value })}
+                            className="w-full p-2 mb-3 border rounded-md"
+                            placeholder="Login"
+                        />
+                        <input
+                            type="text"
+                            value={newStudentData.league}
+                            onChange={(e) => setNewStudentData({ ...newStudentData, league: e.target.value })}
+                            className="w-full p-2 mb-3 border rounded-md"
+                            placeholder="League"
+                        />
+                        <select
+                            value={newStudentData.teacher}
+                            onChange={handleTeacherChange}
+                            className="w-full p-2 mb-3 border rounded-md"
+                        >
+                            <option value="">Select Teacher</option>
+                            {teachers.map((teacher) => (
+                                <option key={teacher.id} value={teacher.teacher}>
+                                    {teacher.teacher}
+                                </option>
+                            ))}
+                        </select>
+                        <select
+                            value={newStudentData.group}
+                            onChange={(e) => setNewStudentData({ ...newStudentData, group: e.target.value })}
+                            className="w-full p-2 mb-3 border rounded-md"
+                        >
+                            <option value="">Select Group</option>
+                            {availableGroups.map((group, index) => (
+                                <option key={index} value={group.groupNumber}>
+                                    Group {group.groupNumber}
+                                </option>
+                            ))}
+                        </select>
+                        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">Add Student</button>
+                    </form>
+                </div>
+
+                <h2 className="text-xl font-semibold mb-4">Students List</h2>
+                <div>
+                    {students.map((student) => (
+                        <div key={student.id} className="border p-4 mb-4">
+                            <div className="font-semibold">{student.name}</div>
+                            <div>{student.league}</div>
+                            <div>{student.group}</div>
+                            <div>{student.teacher}</div>
+                            <button onClick={() => handleEdit(student)} className="px-4 py-2 bg-yellow-500 text-white rounded-md">Edit</button>
+                            <button onClick={() => handleDelete(student.id)} className="px-4 py-2 bg-red-500 text-white rounded-md ml-2">Delete</button>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

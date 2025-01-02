@@ -15,9 +15,10 @@ const Header = ({ setLoggedInUser }) => {
 
     const handleLogout = () => {
         localStorage.removeItem('loggedInUser');
+        localStorage.removeItem('role');
         setLoggedInUser(null);
         setShowUserInfo(false);
-        navigate('/login');
+        navigate('/');
     };
 
     useEffect(() => {
@@ -54,7 +55,7 @@ TNouHD01yrI/SkeegONNXFYLv3u8Y+OBcysi4AvG372i0zoTvQE8wO9McYjqNbKdDDh9UwXsdWIKnLwR
                 {/* User Profile */}
                 {!loggedInUser ? (
                     <Link
-                        to="/login"
+                        to="/"
                         className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center transition duration-300"
                     >
                         <FaUser />
@@ -68,6 +69,7 @@ TNouHD01yrI/SkeegONNXFYLv3u8Y+OBcysi4AvG372i0zoTvQE8wO9McYjqNbKdDDh9UwXsdWIKnLwR
                         </p>
                         <Link
                             ref={userInfoRef}
+                            onClick={handleLogout}
                             className='flex items-center' to='/'>
                             <FaSignOutAlt className="mr-2" /> Logout
                         </Link>
