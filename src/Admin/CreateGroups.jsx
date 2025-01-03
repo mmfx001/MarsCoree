@@ -168,7 +168,7 @@ const CreateGroup = () => {
       {step === 4 && (
         <div>
           <label className="block text-sm font-semibold mb-2">Xona tanlang:</label>
-          <select 
+          <select   
             value={selectedRoom}
             onChange={handleRoomChange} 
             className="w-full p-2 border border-gray-300 rounded-lg mb-4"

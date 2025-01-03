@@ -49,21 +49,25 @@ const StudentTable = () => {
 
         fetchStudents();
     }, []);
-
     const handleSearch = (term) => {
         setSearchTerm(term);
-        const filtered = students.filter((student) =>
-            student.name.toLowerCase().includes(term.toLowerCase())
+        const filtered = students.filter(
+            (student) =>
+                student &&
+                student.name &&
+                student.name.toLowerCase().includes(term.toLowerCase())
         );
         setFilteredStudents(filtered);
     };
+    
 
     const handleInputChange = (id, value) => {
         setInputValues({ ...inputValues, [id]: value });
     };
 
-    const showNotification = (message) => {
-        setNotification(message);
+    const showNotification = (message, type = "success") => {
+        const colorClass = type === "success" ? "bg-green-500" : "bg-red-500";
+        setNotification({ message, colorClass });
         setTimeout(() => setNotification(""), 3000);
     };
 
@@ -71,14 +75,14 @@ const StudentTable = () => {
         const value = parseInt(inputValues[id] || 0, 10);
 
         if (value <= 0) {
-            showNotification("Iltimos, to'g'ri coin kiriting!");
+            showNotification("Iltimos, to'g'ri coin kiriting!", "error");
             return;
         }
 
         try {
             const student = students.find((s) => s.id === id);
             if (!student) {
-                showNotification("Student topilmadi!");
+                showNotification("Student topilmadi!", "error");
                 return;
             }
 
@@ -92,7 +96,7 @@ const StudentTable = () => {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         coins: newCoins,
-                        balance: newBalance, // Balanceni yangilash
+                        balance: newBalance,
                     }),
                 }
             );
@@ -116,31 +120,32 @@ const StudentTable = () => {
                     )
                 );
 
+
+
                 setInputValues({ ...inputValues, [id]: "" });
 
-                showNotification("Coins muvaffaqiyatli qo'shildi!");
+                showNotification("Coins muvaffaqiyatli qo'shildi!", "success");
             } else {
-                showNotification("Xatolik yuz berdi!");
+                showNotification("Xatolik yuz berdi!", "error");
             }
         } catch (error) {
             console.error("Xatolik:", error);
-            showNotification("Xatolik yuz berdi!");
+            showNotification("Xatolik yuz berdi!", "error");
         }
     };
 
     return (
-        <div className="w-full flex">
+        <div className="w-full flex bg-gray-900">
             <Sidebar />
-            <div className="p-6 bg-gray-100 min-h-screen w-full max-w-full">
+            <div className="p-6 bg-white min-h-screen w-full max-w-full rounded-lg shadow-lg">
                 <div className="flex items-center justify-center">
-                    <h1 className="text-3xl sm:text-5xl font-bold text-center text-blue-600 mb-6">
+                    <h1 className="text-3xl sm:text-5xl font-bold text-center text-orange-600 mb-6">
                         Student Coins
                     </h1>
-
                 </div>
                 {notification && (
-                    <div className="bg-green-500 text-white text-center py-2 rounded mb-4">
-                        {notification}
+                    <div className={`${notification.colorClass} text-white text-center py-2 rounded mb-4 shadow`}>
+                        {notification.message}
                     </div>
                 )}
 
@@ -148,13 +153,13 @@ const StudentTable = () => {
                     <input
                         type="text"
                         placeholder="O'quvchini qidirish..."
-                        className="border border-gray-300 rounded px-6 py-2 w-full sm:w-96 md:w-80 lg:w-96 shadow focus:outline-none pr-10"
+                        className="border border-gray-400 rounded px-3 py-1 w-full sm:w-96 md:w-80 lg:w-96 shadow focus:outline-none focus:ring-2 focus:ring-orange-500 pr-10"
                         value={searchTerm}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                     {searchTerm && (
                         <button
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                             onClick={() => {
                                 setSearchTerm("");
                                 setFilteredStudents(students);
@@ -165,36 +170,36 @@ const StudentTable = () => {
                     )}
                 </div>
 
+
                 {isLoading ? (
                     <Skeleton />
                 ) : (
                     <div className="overflow-x-auto w-full max-w-full">
-                        <table className="table-auto w-full bg-white rounded-lg shadow-lg text-left">
+                        <table className="table-auto w-full bg-white rounded-lg shadow-lg text-left border border-gray-400">
                             <thead>
-                                <tr className="bg-gray-200 text-gray-800">
-                                    <th className="border px-4 sm:px-6 py-3">#</th>
-                                    <th className="border px-4 sm:px-6 py-3">O'quvchi</th>
-                                    <th className="border px-4 sm:px-6 py-3">Coins</th>
-                                    <th className="border px-4 sm:px-6 py-3">Balance</th>
-                                    <th className="border px-4 sm:px-6 py-3">Actions</th>
+                                <tr className="bg-gray-800 text-white">
+                                    <th className="border border-gray-600 px-2 sm:px-4 py-2">#</th>
+                                    <th className="border border-gray-600 px-2 sm:px-4 py-2">O'quvchi</th>
+                                    <th className="border border-gray-600 px-2 sm:px-4 py-2">Coins</th>
+                                    <th className="border border-gray-600 px-2 sm:px-4 py-2">Balance</th>
+                                    <th className="border border-gray-600 px-2 sm:px-4 py-2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredStudents.map((student, index) => (
                                     <tr
                                         key={student.id}
-                                        className={`hover:bg-${index % 2 === 0 ? "gray-100" : "white"} ${index % 2 === 0 ? "bg-gray-100" : "bg-white"
-                                            }`}
+                                        className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}
                                     >
-                                        <td className="border px-4 sm:px-6 py-3">{index + 1}</td>
-                                        <td className="border px-4 sm:px-6 py-3">{student.name}</td>
-                                        <td className="border px-4 sm:px-6 py-3">{student.coins}</td>
-                                        <td className="border px-4 sm:px-6 py-3">{student.balance}</td>
-                                        <td className="border px-4 sm:px-6 py-3">
-                                            <div className="flex items-center gap-4">
+                                        <td className="border border-gray-400 px-3 sm:px-4 py-2 text-center">{index + 1}</td>
+                                        <td className="border border-gray-400 px-3 sm:px-4 py-2">{student.name}</td>
+                                        <td className="border border-gray-400 px-3 sm:px-4 py-2 text-right">{student.coins}</td>
+                                        <td className="border border-gray-400 px-3 sm:px-4 py-2 text-right">{student.balance}</td>
+                                        <td className="border border-gray-400 px-3 sm:px-4 py-2">
+                                            <div className="flex items-center gap-9 justify-center">
                                                 <input
                                                     type="number"
-                                                    className="border rounded px-4 py-2 w-24 sm:w-32 md:w-40 lg:w-48 shadow focus:outline-none"
+                                                    className="border rounded px-2 py-1 w-20 sm:w-28 shadow focus:outline-none focus:ring-2 focus:ring-blue-400"
                                                     value={inputValues[student.id] || ""}
                                                     onChange={(e) => {
                                                         const newValue = e.target.value;
@@ -205,7 +210,7 @@ const StudentTable = () => {
                                                     placeholder="Coin"
                                                 />
                                                 <button
-                                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                                    className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 shadow"
                                                     onClick={() => addCoins(student.id)}
                                                 >
                                                     Qo'shish

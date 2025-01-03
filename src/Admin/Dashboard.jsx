@@ -107,108 +107,119 @@ const Dashboard = () => {
         }
     };
 
+    // Inputdagi miqdorni formatlash uchun funksiya
+    const formatPrice = (value) => {
+        let formattedValue = value.replace(/\D/g, "").slice(0, 8); // Maksimal uzunlik 8 ta raqam
+        formattedValue = formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Har 3 raqamdan keyin nuqta qo'yish
+        return formattedValue;
+    };
+
+    const handlePriceChange = (e) => {
+        setPayment((prev) => ({
+            ...prev,
+            price: formatPrice(e.target.value),
+        }));
+    };
+
     const filteredStudents = students.filter((student) =>
-        student.name.toLowerCase().includes(searchTerm)
+        student.name?.toLowerCase().includes(searchTerm)
     );
+    
 
     return (
-        <div className="w-full flex bg-white">
-         <Sidebar/>   
-        <div className="p-6 w-full h-screen flex gap-6">
-            <div className=" flex flex-col items-center w-[60%]">
-                <MonthlyPaymentsChart/>
-                <FilialCards />
-            </div>
-
-            <div className="w-[40%] bg-white rounded-lg shadow-lg p-6">
-                <h1 className="text-2xl font-semibold text-blue-600 mb-4">Talabalar Ro'yxati</h1>
-
-                {/* Search qismi */}
-                <div className="flex items-center mb-4 border border-gray-300 rounded">
-                    <FaSearch className="text-blue-500 ml-2" />
-                    <input
-                        type="text"
-                        placeholder="Talabani qidirish..."
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        className="flex-1 p-2 outline-none rounded bg-white"
-                    />
+        <div className="w-full flex bg-gray-100">
+            <Sidebar />
+            <div className="p-6 w-full h-screen flex gap-6 overflow-hidden">
+                <div className="flex flex-col items-center w-3/5">
+                    <MonthlyPaymentsChart />
+                    <FilialCards />
                 </div>
 
-                {/* Talabalar ro'yxatini ko'rsatish */}
-                {loading ? (
-                    <div className="space-y-4">
-                        <div className="skeleton w-full h-8 bg-gray-300 rounded"></div>
-                        <div className="skeleton w-full h-8 bg-gray-300 rounded"></div>
-                        <div className="skeleton w-full h-8 bg-gray-300 rounded"></div>
-                    </div>
-                ) : (
-                    <table className="w-full border-collapse border border-gray-300 mb-4">
-                        <thead className="bg-blue-50">
-                            <tr>
-                                <th className="border border-gray-300 px-4 py-2 text-left">ID</th>
-                                <th className="border border-gray-300 px-4 py-2 text-left">Ism</th>
-                                <th className="border border-gray-300 px-4 py-2 text-left">To'lov</th>
-                                <th className="border border-gray-300 px-4 py-2 text-left">Guruh</th>
-                                <th className="border border-gray-300 px-4 py-2 text-left">Amallar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredStudents.map((student) => (
-                                <tr key={student.id} className="hover:bg-gray-50">
-                                    <td className="border border-gray-300 px-4 py-2">{student.id}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{student.name}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{student.tolov}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{student.group}</td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        <button
-                                            onClick={() => handlePaymentClick(student)}
-                                            className="text-green-500 hover:text-green-700 px-5"
-                                        >
-                                            <FaMoneyBillWave className="inline" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+                <div className="w-2/5 bg-white rounded-lg shadow-lg p-6 overflow-scroll">
+                    <h1 className="text-3xl font-semibold text-blue-600 mb-6">Talabalar Ro'yxati</h1>
 
-                {/* To'lov formasi */}
-                {selectedStudent && (
-                    <div className="mt-6 p-4 border border-gray-300 rounded bg-gray-50">
-                        <h2 className="text-xl font-semibold text-blue-600 mb-4">
-                            {selectedStudent.name} uchun to'lov
-                        </h2>
-
-                        <label className="block mb-2 text-gray-700">To'lov miqdori:</label>
+                    {/* Search qismi */}
+                    <div className="flex items-center mb-6 border-2 border-gray-300 rounded-full px-3">
+                        <FaSearch className="text-blue-500" />
                         <input
-                            type="number"
-                            placeholder="Miqdori"
-                            value={payment.price}
-                            onChange={(e) =>
-                                setPayment((prev) => ({ ...prev, price: e.target.value }))
-                            }
-                            className="block w-full p-2 border border-gray-300 rounded mb-4 bg-white"
+                            type="text"
+                            placeholder="Talabani qidirish..."
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="flex-1 p-2 outline-none rounded-full bg-white"
                         />
-                        <div className="flex gap-4">
-                            <button
-                                onClick={handlePaymentSubmit}
-                                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-                            >
-                                To'lovni amalga oshir
-                            </button>
-                            <button
-                                onClick={() => setSelectedStudent(null)}
-                                className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
-                            >
-                                Bekor qilish
-                            </button>
-                        </div>
                     </div>
-                )}
+
+                    {/* Talabalar ro'yxatini ko'rsatish */}
+                    {loading ? (
+                        <div className="space-y-4">
+                            <div className="skeleton w-full h-8 bg-gray-300 rounded"></div>
+                            <div className="skeleton w-full h-8 bg-gray-300 rounded"></div>
+                            <div className="skeleton w-full h-8 bg-gray-300 rounded"></div>
+                        </div>
+                    ) : (
+                        <table className="w-full  mb-6">
+                            <thead className="bg-blue-100">
+                                <tr>
+                                    <th className="border px-4 py-3 text-left text-lg">ID</th>
+                                    <th className="border px-4 py-3 text-left text-lg">Ism</th>
+                                    <th className="border px-4 py-3 text-left text-lg">To'lov</th>
+                                    <th className="border px-4 py-3 text-left text-lg">Guruh</th>
+                                    <th className="border px-4 py-3 text-left text-lg">Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredStudents.map((student) => (
+                                    <tr key={student.id} className="hover:bg-blue-50 transition duration-300 ease-in-out">
+                                        <td className="border px-4 py-3">{student.id}</td>
+                                        <td className="border px-4 py-3">{student.name}</td>
+                                        <td className="border px-4 py-3">{student.tolov}</td>
+                                        <td className="border px-4 py-3">{student.group}</td>
+                                        <td className="border px-4 py-3">
+                                            <button
+                                                onClick={() => handlePaymentClick(student)}
+                                                className="text-green-500 hover:text-green-700 px-5"
+                                            >
+                                                <FaMoneyBillWave className="inline" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+
+                    {/* To'lov formasi */}
+                    {selectedStudent && (
+                        <div className="mt-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
+                            <h2 className="text-xl font-semibold text-blue-600 mb-4">{selectedStudent.name} uchun to'lov</h2>
+
+                            <label className="block mb-2 text-gray-700">To'lov miqdori:</label>
+                            <input
+                                type="text"
+                                placeholder="Miqdori"
+                                value={payment.price}
+                                onChange={handlePriceChange}
+                                className="block w-full p-3 border-2 border-gray-300 rounded-lg mb-4"
+                            />
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={handlePaymentSubmit}
+                                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all"
+                                >
+                                    To'lovni amalga oshir
+                                </button>
+                                <button
+                                    onClick={() => setSelectedStudent(null)}
+                                    className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all"
+                                >
+                                    Bekor qilish
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
         </div>
     );
 };

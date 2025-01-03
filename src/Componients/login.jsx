@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,19 +6,25 @@ const Login = () => {
     const [raqam, setRaqam] = useState('+998');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false); // Added loading state
+    const [loading, setLoading] = useState(false);
+    const [alertMessage, setAlertMessage] = useState(''); // Added alert state
+    useEffect(() => {
+ 
+        alert(
+            "Salom bunda 2ta role bor agar email:887060903 va parol:0903  qilsangiz Adminga otasiz agar nomer:940224770 va parol:securepassword   qilsangiz Teacherga otqizadi"
+        );
+   
+}, []);
 
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setLoading(true); // Start loading
+        setLoading(true);
 
-        // Trim inputs
         const trimmedRaqam = raqam.trim();
         const trimmedPassword = password.trim();
 
-        // Validate inputs
         if (!trimmedRaqam || !trimmedPassword) {
             setMessage('Iltimos, ism va parolni to\'ldiring');
             setLoading(false);
@@ -26,38 +32,34 @@ const Login = () => {
         }
 
         try {
-            // Fetch users data from the server (teachers and admin)
             const { data: teachers } = await axios.get('https://shoopjson-2.onrender.com/api/teachers');
-            const { data: admins } = await axios.get('https://shoopjson-2.onrender.com/api/admin'); // Assuming admins API
+            const { data: admins } = await axios.get('https://shoopjson-2.onrender.com/api/admin');
 
-            // Find matching user in teachers and admins
             let user = teachers.find(v => v.raqam === trimmedRaqam && v.password === trimmedPassword);
             if (!user) {
                 user = admins.find(v => v.raqam === trimmedRaqam && v.password === trimmedPassword);
             }
 
             if (user) {
-                // Assign the role based on the user source
                 const role = teachers.find(v => v.raqam === trimmedRaqam && v.password === trimmedPassword)
                     ? 'teacher' : 'admin';
 
-                // Store user and their role (teacher or admin) in localStorage
                 localStorage.setItem('loggedInUser', JSON.stringify(user));
-                localStorage.setItem('role', role); // Store the role (admin or teacher)
+                localStorage.setItem('role', role);
 
-                // Clear form inputs and message
                 setRaqam('');
                 setPassword('');
                 setMessage('');
 
-                // Navigate based on user role
+                // Show alert message
+                setAlertMessage('Salom! Tizimga muvaffaqiyatli kirildi!');
+
                 if (role === 'admin') {
                     navigate(`/dashboard`);
                 } else if (role === 'teacher') {
                     navigate(`/teacher`);
                 }
             } else {
-                // Display user not found message
                 setMessage('Foydalanuvchi topilmadi');
                 setLoading(false);
             }
@@ -68,14 +70,11 @@ const Login = () => {
         }
     };
 
-    // Handle user input for the phone number
     const handleRaqamChange = (e) => {
-        // If the input value starts with +998, allow user to edit the rest of the number
         const value = e.target.value;
         if (value.startsWith('+998')) {
             setRaqam(value);
         } else {
-            // Add the prefix if the user removes it
             setRaqam('+998' + value.slice(4));
         }
     };
@@ -84,7 +83,6 @@ const Login = () => {
         <div className="bg-gray-100 w-full h-screen flex items-center justify-center p-4">
             <div className="bg-white bg-opacity-90 rounded-3xl shadow-xl p-8 w-full max-w-4xl flex flex-col md:flex-row items-center gap-6">
                 
-                {/* Astronaut Image */}
                 <div className="w-full md:w-1/2 flex justify-center">
                     <img 
                         src="https://core.marsit.uz/img/austronaut.43cae203.png" 
@@ -93,9 +91,14 @@ const Login = () => {
                     />
                 </div>
 
-                {/* Login Form */}
                 <div className="w-full md:w-1/2">
                     <h2 className="text-3xl font-semibold text-gray-800 text-center mb-6">Xush Kelibsiz</h2>
+
+                    {alertMessage && (
+                        <div className="bg-green-100 text-green-700 p-3 rounded-lg mb-4 text-center">
+                            {alertMessage}
+                        </div>
+                    )}
 
                     {message && (
                         <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-center">
@@ -104,20 +107,18 @@ const Login = () => {
                     )}
 
                     <form onSubmit={handleLogin} className="space-y-6">
-                        {/* Ism (Phone Number) Field */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Raqam</label>
                             <input
                                 type="text"
                                 value={raqam}
-                                onChange={handleRaqamChange} // Updated to handle custom prefix
+                                onChange={handleRaqamChange}
                                 className="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-150"
                                 placeholder="Raqamingizni kiriting (998901234567)"
                                 required
                             />
                         </div>
 
-                        {/* Parol (Password) Field */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Parol</label>
                             <input
@@ -130,7 +131,6 @@ const Login = () => {
                             />
                         </div>
 
-                        {/* Submit Button */}
                         <button
                             type="submit"
                             className={`w-full bg-orange-600 text-white py-3 rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-orange-700'} focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200`}

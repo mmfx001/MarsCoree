@@ -8,7 +8,7 @@ const FilialCards = () => {
   useEffect(() => {
     const fetchFilials = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/filials");
+        const response = await axios.get("https://shoopjson-2.onrender.com/api/filials");
         setFilials(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -28,7 +28,7 @@ const FilialCards = () => {
             <div
               key={index}
               className="bg-gray-300 rounded-lg shadow-lg p-3 w-[30%] h-32 animate-pulse"
-            ></div>
+            ></div>                          
           ))}
       </div>
     );

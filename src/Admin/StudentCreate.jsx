@@ -16,6 +16,7 @@ const StudentCreate = () => {
     const [editingStudent, setEditingStudent] = useState(null);
     const [editedData, setEditedData] = useState({});
     const [availableGroupsEdit, setAvailableGroupsEdit] = useState([]);
+    const [loading, setLoading] = useState(true); // Added loading state
 
     useEffect(() => {
         const fetchData = async () => {
@@ -26,8 +27,10 @@ const StudentCreate = () => {
                 ]);
                 setStudents(studentsResponse.data);
                 setTeachers(teachersResponse.data);
+                setLoading(false); // Set loading to false once data is fetched
             } catch (error) {
                 console.error('Error fetching data:', error);
+                setLoading(false); // Set loading to false even if there is an error
             }
         };
 
@@ -36,22 +39,39 @@ const StudentCreate = () => {
 
     const handleEdit = (student) => {
         setEditingStudent(student.id);
-        setEditedData({ ...student });
-        setAvailableGroupsEdit(getGroupsByTeacher(student.teacher));
+        setEditedData({
+            name: student.name,
+            league: student.league,
+            group: student.group,
+            teacher: student.teacher,
+        });
+
+        const groups = getGroupsByTeacher(student.teacher);
+        setAvailableGroupsEdit(groups || []);
     };
 
     const handleSave = async () => {
+        if (!editedData.name || !editedData.league || !editedData.group || !editedData.teacher) {
+            alert("All fields are required!");
+            return;
+        }
+
         try {
-            await axios.patch(`https://shoopjson-2.onrender.com/api/students/${editingStudent}`, editedData);
+            const apiUrl = `https://shoopjson-2.onrender.com/api/students/${editingStudent}`;
+            const response = await axios.put(apiUrl, editedData);
+
             setStudents((prevStudents) =>
                 prevStudents.map((student) =>
-                    student.id === editingStudent ? { ...editedData, id: student.id } : student
+                    student.id === editingStudent ? { ...response.data } : student
                 )
             );
+
             setEditingStudent(null);
+            setEditedData({});
             setAvailableGroupsEdit([]);
         } catch (error) {
-            console.error('Error saving student:', error);
+            console.error('Error saving student:', error.response ? error.response.data : error.message);
+            alert('Failed to save student. Please try again.');
         }
     };
 
@@ -63,7 +83,6 @@ const StudentCreate = () => {
             console.error('Error deleting student:', error);
         }
     };
-
 
     const generateRandomId = () => {
         return Math.floor(Math.random() * 10000).toString();
@@ -81,7 +100,6 @@ const StudentCreate = () => {
     };
 
     const handleAddStudent = async () => {
-
         const randomId = generateRandomId();
         const newStudent = {
             ...newStudentData,
@@ -92,19 +110,7 @@ const StudentCreate = () => {
             tolov: 0,
             attendance: 0,
             xp: 0,
-            tasks: [
-                { "id": "1", "Topic": "Введение Front-End", "description": "Создайте небольшой информационный сайт о себе с помощью тегов, которые вы сегодня узнали на уроке.", "requirement": "Использование тегов заголовков.", "materials": "https://lab.marsit.uz/media/project_images/examples/289/4.4_-_homework.mp4" },
-                { "id": "2", "Topic": "HTML теги и их атрибуты", "description": "Создайте мини-сайт о себе, используя теги, которые вы сегодня узнали на уроке.", "requirement": "Использование тегов, включая тег <mark>.", "materials": "https://lab.marsit.uz/media/project_images/examples/103/Homework2.png" },
-                { "id": "3", "Topic": "Iframe vs Img", "description": "Создайте небольшой информационный сайт о себе с помощью тегов, которые вы сегодня узнали на уроке.", "requirement": "Использование тегов <img> и <iframe>, а также тег <a>.", "materials": "https://lab.marsit.uz/media/project_images/examples/104/homework3.png" },
-                { "id": "4", "Topic": "Список тегов", "description": "Создайте небольшой сайт с информацией о Mars It School, используя теги Ordered и Unordered, и придайте ему стиль с помощью тегов, которые мы узнали сегодня.", "requirement": "Использование списков тегов, тегов <img>, встроенных стилей и тега <a>.", "materials": "https://lab.marsit.uz/media/project_images/examples/105/homework4.png" },
-                { "id": "5", "Topic": "Введение Css", "description": "Создайте небольшую веб-страницу на основе сегодняшней темы и используйте стили.", "requirement": "Правильное подключение CSS файла, использование тега <h1>, стилей border и работа с цветами.", "materials": "https://lab.marsit.uz/media/project_images/examples/106/homework5.png" },
-                { "id": "6", "Topic": "Теги формы", "description": "Создайте небольшую форму, используя теги формы, и настройте ее стиль.", "requirement": "Правильные типы инпутов, использование тега <button>, открытый CSS файл, использование классов для закрашивания цветов и тегов <input>.", "materials": "https://lab.marsit.uz/media/project_images/examples/107/homework6.png" },
-                { "id": "7", "Topic": "Box modeling", "description": "Создайте небольшой сайт о Margin, Padding, Border и Forms.", "requirement": "Использование тегов форм, центрирование текстов, использование margin и padding, применение цветов с помощью CSS.", "materials": "https://lab.marsit.uz/media/project_images/examples/108/Homework7.png" },
-                { "id": "8", "Topic": "Table", "description": "Создайте небольшую таблицу с помощью тега <table>.", "requirement": "Создание таблицы, задний фон задан с помощью CSS, таблица выровнена по центру.", "materials": "https://lab.marsit.uz/media/project_images/examples/109/Homework8.png" },
-                { "id": "9", "Topic": "FlexBox", "description": "Выполните задачу с помощью FlexBox.", "requirement": "Использование FlexBox, применение цветов с помощью CSS.", "materials": "https://lab.marsit.uz/media/project_images/examples/110/Flex9.png" },
-                { "id": "10", "Topic": "Container", "description": "Выполните задание до конца, используя контейнер.", "requirement": "Закончить проект полностью.", "materials": "https://lab.marsit.uz/media/project_images/examples/111/Container.png" },
-                { "id": "11", "Topic": "Практика FlexBox", "description": "Сделать проект до конца.", "requirement": "Правильно расположены карточки, сайт полностью завершен.", "materials": "https://lab.marsit.uz/media/project_images/examples/112/Flex_task_11_dars.png" }
-            ],
+            tasks: []
         };
 
         try {
@@ -115,6 +121,19 @@ const StudentCreate = () => {
         } catch (error) {
             console.error('Error adding student:', error);
         }
+    };
+
+    const getGroupsByTeacher = (teacherName) => {
+        const teacher = teachers.find((teacher) => teacher.teacher === teacherName);
+        return teacher ? teacher.groups : [];
+    };
+
+    const handleTeacherChangeEdit = (e) => {
+        const selectedTeacher = e.target.value;
+        setEditedData({ ...editedData, teacher: selectedTeacher });
+
+        const groups = getGroupsByTeacher(selectedTeacher);
+        setAvailableGroupsEdit(groups || []);
     };
 
     return (
@@ -149,7 +168,7 @@ const StudentCreate = () => {
                         />
                         <select
                             value={newStudentData.teacher}
-                            onChange={handleTeacherChange}
+                            onChange={(e) => handleTeacherChange(e)}
                             className="w-full p-2 mb-3 border rounded-md"
                         >
                             <option value="">Select Teacher</option>
@@ -175,19 +194,119 @@ const StudentCreate = () => {
                     </form>
                 </div>
 
-                <h2 className="text-xl font-semibold mb-4">Students List</h2>
-                <div>
-                    {students.map((student) => (
-                        <div key={student.id} className="border p-4 mb-4">
-                            <div className="font-semibold">{student.name}</div>
-                            <div>{student.league}</div>
-                            <div>{student.group}</div>
-                            <div>{student.teacher}</div>
-                            <button onClick={() => handleEdit(student)} className="px-4 py-2 bg-yellow-500 text-white rounded-md">Edit</button>
-                            <button onClick={() => handleDelete(student.id)} className="px-4 py-2 bg-red-500 text-white rounded-md ml-2">Delete</button>
-                        </div>
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="animate-pulse">
+                        {Array.from({ length: 5 }).map((_, index) => (
+                            <div key={index} className="h-8 bg-gray-300 rounded mb-4"></div>
+                        ))}
+                    </div>
+                ) : (
+                    <table className="table-auto w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr className="bg-gray-100">
+                                <th className="border p-2">ID</th>
+                                <th className="border p-2">Name</th>
+                                <th className="border p-2">Login</th>
+                                <th className="border p-2">League</th>
+                                <th className="border p-2">Group</th>
+                                <th className="border p-2">Teacher</th>
+                                <th className="border p-2">Balance</th>
+                                <th className="border p-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {students.map((student) => (
+                                <tr key={student.id} className="hover:bg-gray-50">
+                                    {editingStudent === student.id ? (
+                                        <>
+                                            <td className="border p-2">{student.id}</td>
+                                            <td className="border p-2">
+                                                <input
+                                                    type="text"
+                                                    value={editedData.name}
+                                                    onChange={(e) =>
+                                                        setEditedData({ ...editedData, name: e.target.value })
+                                                    }
+                                                    className="w-full border p-1"
+                                                />
+                                            </td>
+                                            <td className="border p-2">{student.login}</td>
+                                            <td className="border p-2">
+                                                <input
+                                                    type="text"
+                                                    value={editedData.league}
+                                                    onChange={(e) =>
+                                                        setEditedData({ ...editedData, league: e.target.value })
+                                                    }
+                                                    className="w-full border p-1"
+                                                />
+                                            </td>
+                                            <td className="border p-2">
+                                                <input
+                                                    type="text"
+                                                    value={editedData.group}
+                                                    onChange={(e) =>
+                                                        setEditedData({ ...editedData, group: e.target.value })
+                                                    }
+                                                    className="w-full border p-1"
+                                                />
+                                            </td>
+                                            <td className="border p-2">
+                                                <input
+                                                    type="text"
+                                                    value={editedData.teacher}
+                                                    onChange={(e) =>
+                                                        setEditedData({ ...editedData, teacher: e.target.value })
+                                                    }
+                                                    className="w-full border p-1"
+                                                />
+                                            </td>
+                                            <td className="border p-2">{student.balance}</td>
+                                            <td className="border p-2">
+                                                <button
+                                                    onClick={handleSave}
+                                                    className="bg-green-500 text-white px-4 py-1 rounded-md mr-2"
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    onClick={() => setEditingStudent(null)}
+                                                    className="bg-gray-500 text-white px-4 py-1 rounded-md"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td className="border p-2">{student.id}</td>
+                                            <td className="border p-2">{student.name}</td>
+                                            <td className="border p-2">{student.login}</td>
+                                            <td className="border p-2">{student.league}</td>
+                                            <td className="border p-2">{student.group}</td>
+                                            <td className="border p-2">{student.teacher}</td>
+                                            <td className="border p-2">{student.balance}</td>
+                                            <td className="border p-2">
+                                                <button
+                                                    onClick={() => handleEdit(student)}
+                                                    className="bg-yellow-500 text-white px-4 py-1 rounded-md mr-2"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(student.id)}
+                                                    className="bg-red-500 text-white px-4 py-1 rounded-md"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );
